@@ -1,3 +1,3 @@
-pub fn test_floyd_warshall() {
-    println!("called `test_flor_warshall()`");
+pub fn test_floyd_warshall() -> String {
+    return String::from("floyd_warshall");
 }

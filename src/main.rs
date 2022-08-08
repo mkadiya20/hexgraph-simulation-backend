@@ -1,7 +1,7 @@
 use warp::Filter;
 use serde::{Serialize, Deserialize};
 
-// use server::test_lib;
+use server::test_lib;
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,7 +22,7 @@ async fn main() {
     // GET /api
     let api_route = warp::path("api").map(|| {
         let user = User {
-            name: String::from("John"),
+            name: test_lib(),
             age: 30,
             list: vec![1, 2, 3],
         };

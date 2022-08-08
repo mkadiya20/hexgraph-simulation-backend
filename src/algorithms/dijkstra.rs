@@ -1,3 +1,3 @@
-pub fn test_dijkstra() {
-    println!("called `test_dijkstra()`");
+pub fn test_dijkstra() -> String {
+    return String::from("dijkstra");
 }
