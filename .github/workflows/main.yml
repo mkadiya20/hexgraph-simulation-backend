@@ -1,9 +1,6 @@
 name: CI Deployment
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
