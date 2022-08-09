@@ -1,0 +1,48 @@
+name: CI Deployment
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+      
+      - name: Compile
+        run: cargo check
+  
+  Test:
+    needs: Compile
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        rust:
+          - stable
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: ${{ matrix.rust }}
+      
+      - name: Run tests
+        run: cargo test
