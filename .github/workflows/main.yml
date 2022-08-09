@@ -13,15 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      name: Check out code
+      - name: Check out code
       uses: actions/checkout@v3
 
-      name: Set up Rust
+      - name: Set up Rust
       uses: ATiltedTree/setup-rust@v1
       with:
         rust-version: stable
       
-      name: Compile
+      - name: Compile
       run: cargo check
   
   Test:
@@ -41,13 +41,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      name: Check out code
+      - name: Check out code
       uses: actions/checkout@v3
 
-      name: Set up Rust
+      - name: Set up Rust
       uses: ATiltedTree/setup-rust@v1
       with:
         rust-version: ${{ matrix.rust }}
       
-      name: Run tests
+      - name: Run tests
       run: cargo test
