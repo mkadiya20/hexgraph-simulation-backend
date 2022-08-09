@@ -9,7 +9,7 @@ pub fn test_lib() -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::algorithms::{dijkstra, floyd_warshall, hex::Hex, hex_map::HexMap};
+    use crate::algorithms::{dijkstra, floyd_warshall, hex::{Hex, HexType}, hex_map::HexMap};
 
     #[test]
     fn test_dijkstra() {
@@ -25,7 +25,7 @@ mod tests {
 
     #[test]
     fn test_hex() {
-        let value: Hex = Hex::new(0, 0, 0);
+        let value: Hex = Hex::new(0, 0, 0, HexType::Empty);
         assert_eq!(value.q, 0);
         assert_eq!(value.r, 0);
         assert_eq!(value.s, 0);
@@ -40,7 +40,7 @@ mod tests {
     #[test]
     fn test_hex_map_add_hex() {
         let mut value: HexMap = HexMap::new();
-        let hex: Hex = Hex::new(0, 0, 0);
+        let hex: Hex = Hex::new(0, 0, 0, HexType::Empty);
         value.add_hex(hex);
         assert_eq!(value.size(), 1);
     }
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn test_hex_map_get_hex() {
         let mut value: HexMap = HexMap::new();
-        let hex: Hex = Hex::new(0, 0, 0);
+        let hex: Hex = Hex::new(0, 0, 0, HexType::Empty);
         value.add_hex(hex);
         let hex_from_map: Option<&Hex> = value.get_hex(0, 0);
         match hex_from_map {
@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn test_hex_map_get_invalid_hex() {
         let mut value: HexMap = HexMap::new();
-        let hex: Hex = Hex::new(0, 0, 0);
+        let hex: Hex = Hex::new(0, 0, 0, HexType::Empty);
         value.add_hex(hex);
         let hex_from_map: Option<&Hex> = value.get_hex(1, 1);
         match hex_from_map {

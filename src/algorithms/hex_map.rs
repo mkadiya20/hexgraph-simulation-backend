@@ -24,10 +24,10 @@ impl HexMap {
     /// Adds a hexagon to the hash map.
     /// # Examples
     /// ```
-    /// use server::algorithms::hex::Hex;
+    /// use server::algorithms::hex::{Hex, HexType};
     /// use server::algorithms::hex_map::HexMap;
     /// let mut value = HexMap::new();
-    /// let hex = Hex::new(0, 0, 0);
+    /// let hex = Hex::new(0, 0, 0, HexType::Empty);
     /// value.add_hex(hex);
     /// ```
     pub fn add_hex(&mut self, hex: Hex) {
@@ -37,10 +37,10 @@ impl HexMap {
     /// Gets a hexagon from the hash map.
     /// # Examples
     /// ```
-    /// use server::algorithms::hex::Hex;
+    /// use server::algorithms::hex::{Hex, HexType};
     /// use server::algorithms::hex_map::HexMap;
     /// let mut value = HexMap::new();
-    /// let hex = Hex::new(0, 0, 0);
+    /// let hex = Hex::new(0, 0, 0, HexType::Empty);
     /// value.add_hex(hex);
     /// let hex_from_map = value.get_hex(0, 0);
     /// ```
@@ -51,10 +51,10 @@ impl HexMap {
     /// Returns the size of the hash map.
     /// # Examples
     /// ```
-    /// use server::algorithms::hex::Hex;
+    /// use server::algorithms::hex::{Hex, HexType};
     /// use server::algorithms::hex_map::HexMap;
     /// let mut value = HexMap::new();
-    /// value.add_hex(Hex::new(0, 0, 0));
+    /// value.add_hex(Hex::new(0, 0, 0, HexType::Empty));
     /// let size = value.size();
     /// ```
     pub fn size(&self) -> usize {
