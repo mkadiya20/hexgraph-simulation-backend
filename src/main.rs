@@ -1,7 +1,7 @@
 use warp::Filter;
 use serde::{Serialize, Deserialize};
 
-use server::test_lib;
+use server::handle_request;
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -9,6 +9,19 @@ struct User {
     name: String,
     age: u8,
     list: Vec<i32>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Request {
+    request_type: String,
+    source: [i32; 2],
+    target: [i32; 2],
+    graph: Vec<Vec<char>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Response {
+    response: String,
 }
 
 
@@ -22,7 +35,7 @@ async fn main() {
     // GET /api
     let api_route = warp::path("api").map(|| {
         let user = User {
-            name: test_lib(),
+            name: "joe".to_string(),
             age: 30,
             list: vec![1, 2, 3],
         };
@@ -31,12 +44,13 @@ async fn main() {
     });
 
     // POST /api/dijkstra/:name/:age
-    let dijkstra_route = warp::path!("api" / "dijkstra" / String / u8)
+    let dijkstra_route = warp::path!("api" / "dijkstra")
     .and(warp::body::json())
-    .map(|name:String, age: u8, mut user: User| {
-        user.name = format!("{} {}", user.name, name);
-        user.age = age;
-        warp::reply::json(&user)
+    .map(|request: Request| {
+        let response = Response {
+            response: handle_request(request.request_type, request.source, request.target, request.graph),
+        };
+        warp::reply::json(&response)
     });
 
     let get_routes = warp::get().and(
