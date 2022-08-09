@@ -32,8 +32,6 @@ jobs:
           - macos-latest
         rust:
           - stable
-          - beta
-          - nightly
     
     runs-on: ${{ matrix.os }}
 
