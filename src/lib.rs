@@ -51,7 +51,7 @@ pub fn handle_request(
     source: [i32; 2],
     target: [i32; 2],
     graph: Vec<Vec<char>>
-) -> String {
+) -> Vec<String> {
     let hex_map = create_hex_map(graph);
     match hex_map {
         Ok(hex_map) => {
@@ -60,14 +60,25 @@ pub fn handle_request(
             match request_type.as_str() {
                 "dijkstra" => {
                     let path = dijkstra::find_path(&hex_map, &source_hex, &target_hex);
-                    return path;
+
+                    // convert the path to a vector of strings
+                    match path {
+                        Ok(path) => {
+                            return path.iter()
+                                .map(|hex| hex.to_string())
+                                .collect();
+                        }
+                        Err(err) => {
+                            return vec![err.to_string()];
+                        }
+                    }
                 }
                 _ => {
-                    return "Invalid request type".to_string();
+                    return vec!["Not valid".to_string()];
                 }
             }
         }
-        Err(err) => return err.to_string(),
+        Err(err) => return vec![err.to_string()],
     }
 }
 
@@ -79,7 +90,7 @@ mod tests {
             hex_map::HexMap
         },
         offset_to_hex,
-        create_hex_map
+        create_hex_map, handle_request,
     };
 
     #[test]
@@ -181,5 +192,75 @@ mod tests {
                 assert_eq!(err, "Invalid character in graph");
             }
         }
+    }
+
+    #[test]
+    fn test_get_neighbors() {
+        let hex_map = create_hex_map(vec![
+            vec!['b', 'b', 'b'],
+            vec!['b', 'b', 'b'],
+            vec!['b', 'b', 'b']
+        ]).unwrap();
+        let hex = hex_map.get_hex(1, 1).unwrap();
+        let neighbors = hex_map.get_neighbors(hex);
+        assert_eq!(neighbors.len(), 6);
+    }
+
+    #[test]
+    fn test_get_corner_neighbors() {
+        let hex_map = create_hex_map(vec![
+            vec!['b', 'b', 'b'],
+            vec!['b', 'b', 'b'],
+            vec!['b', 'b', 'b']
+        ]).unwrap();
+        let hex = hex_map.get_hex(1, 2).unwrap();
+        let neighbors = hex_map.get_neighbors(hex);
+        assert_eq!(neighbors.len(), 3);
+    }
+
+    #[test]
+    fn test_dijkstra_algorithm_no_obstacles() {
+        let graph = vec![
+            vec!['s', 'b', 'b'],
+            vec!['b', 'b', 'b'],
+            vec!['b', 'b', 'e']
+        ];
+        let path = handle_request("dijkstra".to_string(), [0,0], [2,2], graph);
+        println!("{:?}", path);
+
+        assert_eq!(path[0], "Hex(1,2,-3)");
+        assert_eq!(path[1], "Hex(0,2,-2)");
+        assert_eq!(path[2], "Hex(0,1,-1)");
+        assert_eq!(path[3], "Hex(0,0,0)");
+    }
+
+    #[test]
+    fn test_dijkstra_algorithm_with_obstacles() {
+        let graph = vec![
+            vec!['s', 'b', 'b'],
+            vec!['o', 'o', 'b'],
+            vec!['o', 'o', 'e']
+        ];
+        let path = handle_request("dijkstra".to_string(), [0,0], [2,2], graph);
+        println!("{:?}", path);
+
+        assert_eq!(path[0], "Hex(1,2,-3)");
+        assert_eq!(path[1], "Hex(2,1,-3)");
+        assert_eq!(path[2], "Hex(2,0,-2)");
+        assert_eq!(path[3], "Hex(1,0,-1)");
+        assert_eq!(path[4], "Hex(0,0,0)");
+    }
+
+    #[test]
+    fn test_dijkstra_algorithm_no_path() {
+        let graph = vec![
+            vec!['s', 'b', 'b'],
+            vec!['o', 'o', 'o'],
+            vec!['o', 'o', 'e']
+        ];
+        let path = handle_request("dijkstra".to_string(), [0,0], [2,2], graph);
+        println!("{:?}", path);
+
+        assert_eq!(path[0], "No path found");
     }
 }
