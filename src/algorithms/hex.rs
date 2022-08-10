@@ -3,6 +3,7 @@
 /// `Obstacle` represents a hexagon that cannot be traversed.
 /// `Start` represents the starting hexagon.
 /// `End` represents the ending hexagon.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum HexType {
     Empty,
     Obstacle,
@@ -13,6 +14,7 @@ pub enum HexType {
 /// The `Hex` struct represents a hexagon in a hexagonal grid.
 /// This struct uses the cube coordinate system.
 /// Each `Hex` has a state that defines its type.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Hex {
     pub q: i32,
     pub r: i32,
@@ -47,5 +49,16 @@ impl Hex {
         let row = self.r;
         let col = self.q + (self.r - (self.r&1)) / 2;
         return (row, col);
+    }
+
+    /// Returns the string representation of the `Hex`.
+    /// # Examples
+    /// ```
+    /// use server::algorithms::hex::{Hex, HexType};
+    /// let hex = Hex::new(0, 0, 0, HexType::Empty);
+    /// let string = hex.to_string();
+    /// ```
+    pub fn to_string(&self) -> String {
+        return format!("Hex({},{},{})", self.q, self.r, self.s);
     }
 }

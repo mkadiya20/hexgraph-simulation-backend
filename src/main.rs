@@ -21,7 +21,7 @@ struct Request {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Response {
-    response: String,
+    response: Vec<String>,
 }
 
 
