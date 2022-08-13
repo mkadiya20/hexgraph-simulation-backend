@@ -6,21 +6,33 @@ on:
       - master
 
 jobs:
-  Compile:
+  Build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Set up Rust
-        uses: ATiltedTree/setup-rust@v1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          rust-version: stable
-      
-      - name: Compile
-        run: cargo check
-  
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: hexgraph-backend
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    
   Test:
     needs: Compile
 
@@ -46,3 +58,41 @@ jobs:
       
       - name: Run tests
         run: cargo test
+
+  Deploy:
+    needs: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Executing SSH Commands on EC2
+        uses: appleboy/ssh-action@master
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: hexgraph-backend
+          IMAGE_TAG: latest
+        with:
+          host: ${{ secrets.AWS_EC2_PUBLIC_DNS }}
+          username: ${{ secrets.AWS_EC2_USERNAME }}
+          key: ${{ secrets.AWS_EC2_PEM }}
+          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG
+          script: |
+            aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG hexgraph-backend
+            docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker rmi $(docker images -f "dangling=true" -q)
+            docker run -d -p 8000:8000 --name hexgraph-backend hexgraph-backend
