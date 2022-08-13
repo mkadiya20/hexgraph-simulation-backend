@@ -65,6 +65,6 @@ async fn main() {
     let routes = get_routes.or(post_routes);
 
     warp::serve(routes)
-        .run(([127, 0, 0, 1], 8000))
+        .run(([0, 0, 0, 0], 8000))
         .await;
 }
